@@ -1,9 +1,9 @@
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
-import NextAuth from 'next-auth';
+import NextAuth, {type NextAuthOptions} from 'next-auth';
 import DiscordProvider from 'next-auth/providers/discord';
 import { prisma } from '@utils/client';
 
-export const authOptions = {
+export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     DiscordProvider({
@@ -16,7 +16,10 @@ export const authOptions = {
     async session({ session, user }) {
       if (session.user) {
         session.user.id = user.id;
-        session.user.avatarUrl = user.image;
+
+        // image can be null, undefined, or a string,
+        // this limits to either undefined or a string
+        session.user.avatarUrl = user.image === null ? undefined : user.image;
       }
       return session;
     },
